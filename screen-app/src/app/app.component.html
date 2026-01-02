@@ -1,0 +1,73 @@
+<div class="screen-container">
+
+  <!-- LOBBY OVERLAY -->
+  <div *ngIf="!gameRunning && !gameOver" class="lobby-overlay">
+    <div class="lobby-card">
+      <h1>Car Console</h1>
+      <div class="room-code">
+        <span>ROOM CODE:</span>
+        <h2 *ngIf="roomCode">{{ roomCode }}</h2>
+        <h2 *ngIf="!roomCode" class="loading">Generating...</h2>
+        <div *ngIf="qrCodeUrl" class="qr-container">
+          <img [src]="qrCodeUrl" alt="Scan to Join">
+        </div>
+      </div>
+      <div class="status">
+        <p *ngIf="!controllerConnected">Waiting for controller to join...</p>
+        <p *ngIf="controllerConnected" class="success">Controller Connected! Starting...</p>
+      </div>
+      <div class="instructions">
+        <p>1. Scan QR or open Controller App</p>
+        <p>2. Enter Code</p>
+        <p>3. Tilt to Steer</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div *ngIf="gameOver" class="modal-overlay">
+    <div class="modal-card error-theme">
+      <div class="icon">💥</div>
+      <h1>GAME OVER</h1>
+      <p>CRASHED!</p>
+      <div class="waiting-text">
+        Waiting for controller to restart...
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME VIEW -->
+  <div class="game-world" *ngIf="gameRunning || gameOver">
+    <div class="timer-display">
+      TIME: {{ elapsedTime }}s
+    </div>
+    <!-- <div class="sky"></div> -->
+    <div class="ground">
+      <div class="road">
+        <!-- Lane Markers -->
+        <div class="lane-marker left" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
+        <div class="lane-marker right" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
+        <div class="lane-marker center" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
+
+        <!-- Obstacles -->
+        <div *ngFor="let obs of obstacles" class="obstacle" [style.left]="obs.x + '%'" [style.top]="obs.y + '%'"
+          [style.width]="obs.width + '%'" [style.height]="obs.height + '%'">
+        </div>
+
+        <!-- Car -->
+        <div class="car" [style.left]="carPosition + '%'">
+          <div class="car-body">
+            <div class="windshield"></div>
+            <div class="roof"></div>
+            <div class="hood"></div>
+          </div>
+          <div class="wheel front-left"></div>
+          <div class="wheel front-right"></div>
+          <div class="wheel rear-left"></div>
+          <div class="wheel rear-right"></div>
+          <div class="lights"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
