@@ -236,7 +236,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   async generateQR(code: string) {
     const host = window.location.hostname;
     // Assume controller is on port 4201
-    const url = `http://${host}:4201?room=${code}`;
+    const url = `https://car-console-controller.vercel.app?room=${code}`;
     try {
       this.qrCodeUrl = await QRCode.toDataURL(url, { margin: 1, scale: 6 });
     } catch (err) {
