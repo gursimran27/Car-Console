@@ -11,7 +11,7 @@ export interface CarInput {
 })
 export class GameService {
   private socket: Socket;
-  private backendUrl = 'http://localhost:3333';
+  private backendUrl = 'https://car-console.onrender.com';
 
   // State
   private roomCodeSubject = new BehaviorSubject<string | null>(null);

@@ -7,7 +7,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 })
 export class ControllerService {
   private socket: Socket;
-  private backendUrl = 'http://localhost:3333'; 
+  private backendUrl = 'https://car-console.onrender.com'; 
 
   // State
   private joinedRoomSubject = new BehaviorSubject<string | null>(null);
