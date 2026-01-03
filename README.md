@@ -1,6 +1,6 @@
 # 🏎️ AirConsole-Style Car Game
 
-A real-time multiplayer car game where your phone is the controller! 
+A real-time car game where your phone is the controller! 
 
 Built with **Angular** (Screen & Controller) and **Node.js + Socket.IO** (Backend).
 
