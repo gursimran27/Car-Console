@@ -2,7 +2,7 @@
   <!-- HUD -->
   <div class="hud" *ngIf="!gameOver">
     <div class="left-hud">
-      <div class="timer">{{ elapsedTime }}s</div>
+      <div class="timer">TIME: {{ remainingTime }}</div>
       <div class="score">SCORE: {{ score }}</div>
     </div>
     <div class="speed">SPEED: {{ (currentSpeed * 100).toFixed(0) }}</div>
@@ -44,8 +44,8 @@
 
     <div class="stats">
       <div class="stat-item">
-        <span class="stat-label">SURVIVED</span>
-        <span class="stat-value">{{ elapsedTime }}s</span>
+        <span class="stat-label">REMAINING</span>
+        <span class="stat-value">{{ remainingTime }}</span>
       </div>
       <!-- <div class="stat-item">
         <span class="stat-label">TOP SPEED</span>

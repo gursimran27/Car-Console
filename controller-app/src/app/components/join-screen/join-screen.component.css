@@ -3,14 +3,50 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 100dvh;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 h1 {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  font-size: clamp(2rem, 10vw, 3rem);
+  margin-bottom: 1rem;
   color: #fff;
   text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.status-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.5);
+  margin-bottom: 2.5rem;
+  text-transform: uppercase;
+}
+
+.status-badge.online {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.5);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+.status-badge.connecting {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+  border: 1px solid rgba(255, 165, 0, 0.5);
+  animation: badgePulse 1.5s infinite;
+}
+
+@keyframes badgePulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .input-group {

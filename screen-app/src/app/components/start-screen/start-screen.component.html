@@ -1,12 +1,23 @@
 <div class="start-screen">
   <h1>Race Car Console</h1>
 
+  <div class="connection-status">
+    <div class="status-badge" [class.online]="connectionStatus === 'CONNECTED'"
+      [class.connecting]="connectionStatus === 'CONNECTING'">
+      SERVER: {{ connectionStatus === 'CONNECTED' ? 'ONLINE' : (connectionStatus === 'CONNECTING' ? 'CONNECTING...' :
+      'OFFLINE') }}
+    </div>
+    <div class="status-badge" [class.online]="controllerConnected">
+      CONTROLLER: {{ controllerConnected ? 'CONNECTED' : 'WAITING' }}
+    </div>
+  </div>
+
   <div class="status">
     <p *ngIf="!controllerConnected" class="waiting">
-      Waiting for controller to join...
+      Scan QR to connect your phone
     </p>
     <p *ngIf="controllerConnected" class="connected">
-      Controller Connected! Starting...
+      Controller Ready!
     </p>
   </div>
 

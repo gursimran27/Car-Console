@@ -6,21 +6,63 @@
   text-align: center;
   z-index: 10;
   background: rgba(0,0,0,0.8);
-  padding: 40px;
+  /* padding: clamp(20px, 5vw, 40px); */
+  padding: clamp(10px, 2vw, 10px);
   border-radius: 20px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255,255,255,0.1);
   animation: fadeIn 0.5s ease-out;
+  width: 90%;
+  max-width: 800px;
+  margin: auto;
 }
 
 h1 {
-  font-size: 4rem;
+  font-size: clamp(2rem, 8vw, 4rem);
   margin-bottom: 2rem;
   background: linear-gradient(45deg, #fff, #888);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+
+.connection-status {
+  display: flex;
+  gap: 10px;
+  /* margin-bottom: 20px; */
+}
+
+.status-badge {
+  padding: 6px 12px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  background: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  border: 1px solid rgba(255, 68, 68, 0.5);
+  transition: all 0.3s ease;
+}
+
+.status-badge.online {
+  background: rgba(0, 255, 136, 0.2);
+  color: #00ff88;
+  border: 1px solid rgba(0, 255, 136, 0.5);
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
+.status-badge.connecting {
+  background: rgba(255, 165, 0, 0.2);
+  color: #ffa500;
+  border: 1px solid rgba(255, 165, 0, 0.5);
+  animation: badgePulse 1.5s infinite;
+}
+
+@keyframes badgePulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .btn-primary {
@@ -50,12 +92,12 @@ h1 {
 }
 
 .code-display {
-  font-size: 5rem;
+  font-size: clamp(2.5rem, 10vw, 5rem);
   font-family: monospace;
   font-weight: bold;
   color: #00ff88;
   background: rgba(0,0,0,0.5);
-  padding: 1rem 3rem;
+  padding: 0.5rem 2rem;
   border-radius: 15px;
   border: 2px solid #00ff88;
   text-shadow: 0 0 10px rgba(0,255,136,0.5);

@@ -17,7 +17,7 @@ export class GameViewComponent {
   @Input() obstacles: Obstacle[] = [];
   @Input() gameRunning: boolean = false;
   @Input() gameOver: boolean = false;
-  @Input() elapsedTime: string = '0.00';
+  @Input() remainingTime: string = '3:00';
   @Input() currentSpeed: number = 0;
   @Input() score: number = 0;
 

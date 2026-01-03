@@ -12,7 +12,6 @@
   background: linear-gradient(135deg, #1a1a1a, #000000);
   color: white;
   overflow: hidden;
-  user-select: none;
   touch-action: none; /* Prevents browser gestures like pull-to-refresh */
 }
 

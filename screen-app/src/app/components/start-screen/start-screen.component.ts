@@ -10,11 +10,12 @@ import { CommonModule } from '@angular/common';
 })
 export class StartScreenComponent {
   @Input() roomCode: string | null = null;
+  @Input() connectionStatus: 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' = 'CONNECTING';
   @Input() controllerConnected: boolean = false;
   @Input() qrCodeUrl: string | null = null;
-  
+
   @Output() createRoom = new EventEmitter<void>();
-  
+
   onCreateRoom() {
     this.createRoom.emit();
   }

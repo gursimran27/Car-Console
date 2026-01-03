@@ -1,5 +1,11 @@
 <div class="join-screen">
   <h1>Car Controller</h1>
+
+  <div class="status-badge" [class.online]="connectionStatus === 'CONNECTED'"
+    [class.connecting]="connectionStatus === 'CONNECTING'">
+    SERVER: {{ connectionStatus === 'CONNECTED' ? 'ONLINE' : (connectionStatus === 'CONNECTING' ? 'CONNECTING...' :
+    'OFFLINE') }}
+  </div>
   <div class="input-group">
     <input [(ngModel)]="roomCodeInput" placeholder="ENTER CODE" maxlength="6" (keyup.enter)="joinRoom()"
       class="code-input" />

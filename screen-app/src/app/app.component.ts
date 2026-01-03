@@ -18,6 +18,7 @@ import { Obstacle } from './interfaces/game.interfaces';
 })
 export class AppComponent implements OnInit, AfterViewInit {
   roomCode: string | null = null;
+  connectionStatus: 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' = 'CONNECTING';
   controllerConnected = false;
   qrCodeUrl: string | null = null;
 
@@ -63,11 +64,16 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   // Timer
   startTime = 0;
-  elapsedTime = '0.00';
+  remainingTime = '3:00';
+  private gameDurationMs = environment.gameDurationMs;
 
   constructor(private gameService: GameService, private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
+    this.gameService.connectionStatus$.subscribe(status => {
+      this.connectionStatus = status;
+    });
+
     this.gameService.roomCode$.subscribe(code => {
       this.roomCode = code;
       if (code && !this.qrCodeUrl) {
@@ -129,7 +135,7 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     // Timer Init
     this.startTime = Date.now();
-    this.elapsedTime = '0.00';
+    this.updateTimer();
   }
 
   attemptFullscreen() {
@@ -148,15 +154,24 @@ export class AppComponent implements OnInit, AfterViewInit {
   gameLoop = () => {
     if (this.gameRunning) {
       this.updatePhysics();
-
-      // Update Timer
-      const now = Date.now();
-      const seconds = (now - this.startTime) / 1000;
-      this.elapsedTime = seconds.toFixed(2);
+      this.updateTimer();
     }
     this.updateVisuals();
     this.cdr.detectChanges(); // Force UI update
     requestAnimationFrame(this.gameLoop);
+  }
+
+  updateTimer() {
+    const elapsed = Date.now() - this.startTime;
+    const remaining = Math.max(0, this.gameDurationMs - elapsed);
+
+    const mins = Math.floor(remaining / 60000);
+    const secs = Math.floor((remaining % 60000) / 1000);
+    this.remainingTime = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+    if (remaining <= 0 && this.gameRunning) {
+      this.handleGameEnd();
+    }
   }
 
   updatePhysics() {
@@ -283,6 +298,12 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   handleCrash() {
+    this.gameRunning = false;
+    this.gameOver = true;
+    this.gameService.notifyGameOver();
+  }
+
+  handleGameEnd() {
     this.gameRunning = false;
     this.gameOver = true;
     this.gameService.notifyGameOver();

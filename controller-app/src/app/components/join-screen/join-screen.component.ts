@@ -13,6 +13,7 @@ import { ControllerService } from '../../services/controller.service';
 })
 export class JoinScreenComponent implements OnInit {
   roomCodeInput = '';
+  connectionStatus: 'CONNECTED' | 'CONNECTING' | 'DISCONNECTED' = 'CONNECTING';
   errorMsg: string | null = null;
 
   constructor(
@@ -20,6 +21,9 @@ export class JoinScreenComponent implements OnInit {
     private route: ActivatedRoute
   ) {
     this.controllerService.error$.subscribe(err => this.errorMsg = err);
+    this.controllerService.connectionStatus$.subscribe(status => {
+      this.connectionStatus = status;
+    });
   }
 
   ngOnInit() {

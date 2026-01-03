@@ -9,7 +9,7 @@ import { CarInput, PedalInput } from '../interfaces/input.interface';
 })
 export class ControllerService {
   private socket: Socket;
-  private backendUrl = environment.apiUrl; 
+  private backendUrl = environment.apiUrl;
 
   // State
   private joinedRoomSubject = new BehaviorSubject<string | null>(null);
@@ -20,6 +20,9 @@ export class ControllerService {
 
   private gameOverSubject = new BehaviorSubject<boolean>(false);
   public gameOver$ = this.gameOverSubject.asObservable();
+
+  private connectionStatusSubject = new BehaviorSubject<'CONNECTED' | 'CONNECTING' | 'DISCONNECTED'>('CONNECTING');
+  public connectionStatus$ = this.connectionStatusSubject.asObservable();
 
   constructor() {
     this.socket = io(this.backendUrl, {
@@ -32,6 +35,11 @@ export class ControllerService {
   private setupListeners() {
     this.socket.on('connect', () => {
       console.log('Connected to backend:');
+      this.connectionStatusSubject.next('CONNECTED');
+    });
+
+    this.socket.on('connect_error', () => {
+      this.connectionStatusSubject.next('CONNECTING');
     });
 
     this.socket.on('joined-room', (roomCode: string) => {
@@ -49,27 +57,28 @@ export class ControllerService {
     this.socket.on('disconnect', () => {
       // console.log('Disconnected from backend');
       this.joinedRoomSubject.next(null);
+      this.connectionStatusSubject.next('DISCONNECTED');
     });
 
     this.socket.on('room-closed', () => {
-        this.joinedRoomSubject.next(null);
-        this.errorSubject.next('Room closed by host');
+      this.joinedRoomSubject.next(null);
+      this.errorSubject.next('Room closed by host');
     });
 
     this.socket.on('game-over', () => {
-        this.gameOverSubject.next(true);
+      this.gameOverSubject.next(true);
     });
-    
+
     // If screen restarts game
     this.socket.on('restart-game', () => {
-        this.gameOverSubject.next(false);
+      this.gameOverSubject.next(false);
     });
   }
 
   public joinRoom(roomCode: string) {
     if (!roomCode || roomCode.length !== 6) {
-        this.errorSubject.next('Invalid room code');
-        return;
+      this.errorSubject.next('Invalid room code');
+      return;
     }
     this.socket.emit('join-room', roomCode.toUpperCase());
   }
@@ -84,7 +93,7 @@ export class ControllerService {
   }
 
   public restartGame() {
-      this.socket.emit('restart-game');
-      this.gameOverSubject.next(false);
+    this.socket.emit('restart-game');
+    this.gameOverSubject.next(false);
   }
 }

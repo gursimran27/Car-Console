@@ -24,6 +24,9 @@ export class GameService {
   private pedalSubject = new Subject<PedalInput>();
   public pedal$ = this.pedalSubject.asObservable();
 
+  private connectionStatusSubject = new BehaviorSubject<'CONNECTED' | 'CONNECTING' | 'DISCONNECTED'>('CONNECTING');
+  public connectionStatus$ = this.connectionStatusSubject.asObservable();
+
   private gameRestartSubject = new Subject<void>();
   public gameRestart$ = this.gameRestartSubject.asObservable();
 
@@ -37,6 +40,16 @@ export class GameService {
   private setupListeners() {
     this.socket.on('connect', () => {
       console.log('Screen connected to backend');
+      this.connectionStatusSubject.next('CONNECTED');
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('Screen disconnected from backend');
+      this.connectionStatusSubject.next('DISCONNECTED');
+    });
+
+    this.socket.on('connect_error', () => {
+      this.connectionStatusSubject.next('CONNECTING');
     });
 
     this.socket.on('room-created', (code: string) => {
