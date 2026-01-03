@@ -3,18 +3,18 @@
   <app-landing-page *ngIf="currentStep === 'LANDING'" (createRoom)="createRoom()">
   </app-landing-page>
 
-  <!-- 2. Lobby (QR Screen) -->
-  <app-start-screen *ngIf="currentStep === 'LOBBY'" [roomCode]="roomCode" [controllerConnected]="controllerConnected"
-    [qrCodeUrl]="qrCodeUrl" (createRoom)="createRoom()">
+  <!-- 2. Lobby (QR Code & Player Status) -->
+  <app-start-screen *ngIf="currentStep === 'LOBBY'" [roomCode]="roomCode" [playersConnected]="playersConnected"
+    [maxPlayers]="maxPlayers" [qrCodeUrl]="qrCodeUrl" (createRoom)="createRoom()">
   </app-start-screen>
 
-  <!-- 3. Fullscreen Modal (Overlay) -->
-  <app-fullscreen-modal *ngIf="showFullscreenModal" (selection)="handleFullscreenDecision($event)">
+  <!-- 3. Fullscreen Permission Modal -->
+  <app-fullscreen-modal *ngIf="showFullscreenModal" (decision)="handleFullscreenDecision($event)">
   </app-fullscreen-modal>
 
   <!-- 4. Game View -->
-  <app-game-view *ngIf="currentStep === 'GAME'" [carPosition]="carPosition" [carSpeed]="carSpeed"
-    [roadOffset]="roadOffset" [roadSpeed]="roadSpeed" [obstacles]="obstacles" [gameRunning]="gameRunning"
-    [gameOver]="gameOver" [elapsedTime]="elapsedTime" [currentSpeed]="currentSpeed" [score]="score">
+  <app-game-view *ngIf="currentStep === 'GAME'" [players]="players" [roadOffset]="roadOffset" [roadSpeed]="roadSpeed"
+    [obstacles]="obstacles" [gameRunning]="gameRunning" [gameOver]="gameOver" [remainingTime]="remainingTime"
+    [winner]="winner">
   </app-game-view>
 </div>

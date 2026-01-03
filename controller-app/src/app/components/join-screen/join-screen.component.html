@@ -1,8 +1,12 @@
 <div class="join-screen">
+  <div class="connection-status" [class.online]="isConnected">
+    <span class="dot"></span>
+    {{ isConnected ? 'SERVER ONLINE' : 'CONNECTING TO SERVER...' }}
+  </div>
   <h1>Car Controller</h1>
   <div class="input-group">
-    <input [(ngModel)]="roomCodeInput" placeholder="ENTER CODE" maxlength="6" (keyup.enter)="joinRoom()"
-      class="code-input" />
+    <input [(ngModel)]="roomCodeInput" (input)="roomCodeInput = roomCodeInput.toUpperCase()" placeholder="ENTER CODE"
+      maxlength="6" (keyup.enter)="joinRoom()" class="code-input" />
     <button (click)="joinRoom()" class="btn-primary">JOIN</button>
   </div>
   <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>

@@ -1,8 +1,11 @@
 <div class="container">
   <app-join-screen *ngIf="!joinedRoom"></app-join-screen>
 
-  <app-ready-screen *ngIf="joinedRoom && !isReady" (ready)="handleReady()"></app-ready-screen>
+  <app-ready-screen *ngIf="joinedRoom && !isReady" [playersConnected]="playersConnected" [playerIndex]="playerIndex"
+    [maxPlayers]="maxPlayers" (ready)="handleReady()">
+  </app-ready-screen>
 
-  <app-game-controls *ngIf="joinedRoom && isReady" [roomCode]="joinedRoom" [isGameOver]="isGameOver">
+  <app-game-controls *ngIf="joinedRoom && isReady" [roomCode]="joinedRoom" [isGameOver]="isGameOver"
+    [playersConnected]="playersConnected" [playerIndex]="playerIndex">
   </app-game-controls>
 </div>

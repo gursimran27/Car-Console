@@ -1,6 +1,9 @@
 .main-container {
   width: 100vw;
   height: 100vh;
-  background: #111; /* Fallback background */
+  background: #111;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

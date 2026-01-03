@@ -9,11 +9,17 @@ import { CarInput, PedalInput } from '../interfaces/input.interface';
 })
 export class ControllerService {
   private socket: Socket;
-  private backendUrl = environment.apiUrl; 
+  private backendUrl = environment.apiUrl;
 
   // State
   private joinedRoomSubject = new BehaviorSubject<string | null>(null);
   public joinedRoom$ = this.joinedRoomSubject.asObservable();
+
+  private playerIndexSubject = new BehaviorSubject<number | null>(null);
+  public playerIndex$ = this.playerIndexSubject.asObservable();
+
+  private playersConnectedSubject = new BehaviorSubject<number>(0);
+  public playersConnected$ = this.playersConnectedSubject.asObservable();
 
   private errorSubject = new BehaviorSubject<string | null>(null);
   public error$ = this.errorSubject.asObservable();
@@ -21,55 +27,75 @@ export class ControllerService {
   private gameOverSubject = new BehaviorSubject<boolean>(false);
   public gameOver$ = this.gameOverSubject.asObservable();
 
+  private connectedSubject = new BehaviorSubject<boolean>(false);
+  public connected$ = this.connectedSubject.asObservable();
+
   constructor() {
     this.socket = io(this.backendUrl, {
-      autoConnect: true
+      autoConnect: true,
+      reconnection: true
     });
 
     this.setupListeners();
   }
 
   private setupListeners() {
-    this.socket.on('connect', () => {
-      console.log('Connected to backend:');
+    this.socket.onAny((eventName, ...args) => {
+      console.log(`[SOCKET-ANY] Received [${eventName}]:`, args);
     });
 
-    this.socket.on('joined-room', (roomCode: string) => {
-      // console.log('Joined room:', roomCode);
-      this.joinedRoomSubject.next(roomCode);
+    this.socket.on('connect', () => {
+      console.log(`[CONTROLLER] Connected to backend! ID: ${this.socket.id}`);
+      this.connectedSubject.next(true);
+    });
+
+    this.socket.on('connect_error', (error) => {
+      console.error('[CONTROLLER] Connection Error:', error);
+      this.connectedSubject.next(false);
+    });
+
+    this.socket.on('joined-room', (data: { roomCode: string, playerIndex: number, playersConnected: number }) => {
+      this.joinedRoomSubject.next(data.roomCode);
+      this.playerIndexSubject.next(data.playerIndex);
+      this.playersConnectedSubject.next(data.playersConnected);
       this.errorSubject.next(null);
       this.gameOverSubject.next(false);
     });
 
+    this.socket.on('lobby-update', (data: { playersConnected: number }) => {
+      this.playersConnectedSubject.next(data.playersConnected);
+    });
+
     this.socket.on('error', (msg: string) => {
-      console.error('Socket error:', msg);
       this.errorSubject.next(msg);
     });
 
     this.socket.on('disconnect', () => {
-      // console.log('Disconnected from backend');
+      console.log('[CONTROLLER] Disconnected');
+      this.connectedSubject.next(false);
       this.joinedRoomSubject.next(null);
+      this.playerIndexSubject.next(null);
     });
 
     this.socket.on('room-closed', () => {
-        this.joinedRoomSubject.next(null);
-        this.errorSubject.next('Room closed by host');
+      this.joinedRoomSubject.next(null);
+      this.playerIndexSubject.next(null);
+      this.errorSubject.next('Room closed by host');
     });
 
     this.socket.on('game-over', () => {
-        this.gameOverSubject.next(true);
+      this.gameOverSubject.next(true);
     });
-    
-    // If screen restarts game
+
     this.socket.on('restart-game', () => {
-        this.gameOverSubject.next(false);
+      this.gameOverSubject.next(false);
     });
   }
 
   public joinRoom(roomCode: string) {
     if (!roomCode || roomCode.length !== 6) {
-        this.errorSubject.next('Invalid room code');
-        return;
+      this.errorSubject.next('Invalid room code');
+      return;
     }
     this.socket.emit('join-room', roomCode.toUpperCase());
   }
@@ -84,7 +110,7 @@ export class ControllerService {
   }
 
   public restartGame() {
-      this.socket.emit('restart-game');
-      this.gameOverSubject.next(false);
+    this.socket.emit('restart-game');
+    this.gameOverSubject.next(false);
   }
 }

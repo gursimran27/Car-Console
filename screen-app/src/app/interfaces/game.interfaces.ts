@@ -1,10 +1,12 @@
 export interface CarInput {
   steer: 'LEFT' | 'RIGHT' | 'CENTER';
+  playerIndex?: number;
 }
 
 export interface PedalInput {
   type: 'GAS' | 'BRAKE';
   isDown: boolean;
+  playerIndex?: number;
 }
 
 export interface Obstacle {

@@ -14,12 +14,14 @@ import { ControllerService } from '../../services/controller.service';
 export class JoinScreenComponent implements OnInit {
   roomCodeInput = '';
   errorMsg: string | null = null;
+  isConnected = false;
 
   constructor(
     private controllerService: ControllerService,
     private route: ActivatedRoute
   ) {
     this.controllerService.error$.subscribe(err => this.errorMsg = err);
+    this.controllerService.connected$.subscribe(status => this.isConnected = status);
   }
 
   ngOnInit() {

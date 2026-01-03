@@ -3,8 +3,9 @@ import { roomManager } from '../services/roomManager';
 import { log } from '../utils/logger';
 
 interface SocketData {
-    type: 'screen' | 'controller';
-    roomCode: string;
+    type: 'screen' | 'controller' | null;
+    roomCode: string | null;
+    playerIndex?: number;
 }
 
 export function setupSocketHandlers(io: Server) {
@@ -22,43 +23,69 @@ export function setupSocketHandlers(io: Server) {
             socket.emit('room-created', roomCode);
         });
 
-        socket.on('join-room', (roomCode: string) => {
+        socket.on('join-room', (rawRoomCode: string) => {
+            const roomCode = rawRoomCode.trim().toUpperCase();
+
             if (!roomManager.hasRoom(roomCode)) {
                 socket.emit('error', 'Room not found');
                 log('ERR', `Join failed: Room ${roomCode} not found (Socket: ${socket.id})`);
                 return;
             }
 
-            roomManager.joinRoom(roomCode, socket.id);
+            const playerIndex = roomManager.joinRoom(roomCode, socket.id);
+            if (playerIndex === null) {
+                socket.emit('error', 'Room is full');
+                log('ERR', `Join failed: Room ${roomCode} is full (Socket: ${socket.id})`);
+                return;
+            }
+
             socket.join(roomCode);
             socket.data.type = 'controller';
             socket.data.roomCode = roomCode;
+            socket.data.playerIndex = playerIndex;
+
+            log('JOIN', `[V2] Controller ${socket.id} joined Room ${roomCode} as P${playerIndex + 1}`);
 
             const room = roomManager.getRoom(roomCode);
-            if (room) {
-                io.to(room.screenId).emit('controller-connected');
+            const total = room!.controllers.length;
+            const updateData = { playerIndex, totalPlayers: total, playersConnected: total, roomCode };
+
+            // Verify room membership
+            const members = io.sockets.adapter.rooms.get(roomCode);
+            log('ROOM', `[V2] Room ${roomCode} members: ${members ? Array.from(members).join(', ') : 'EMPTY'}`);
+
+            // 1. Confirm to the joining controller directly
+            socket.emit('joined-room', updateData);
+
+            // 2. Notify everyone in the room
+            log('ROOM', `[V2] Broadcasting player-joined to Room ${roomCode} (Total: ${total})`);
+            io.to(roomCode).emit('player-joined', updateData);
+            io.to(roomCode).emit('lobby-update', updateData);
+
+            // 3. Fallback: Explicitly target the screen-app socket
+            if (room?.screenId) {
+                log('ROOM', `[V2] Direct emit to Screen ${room.screenId}`);
+                io.to(room.screenId).emit('player-joined', updateData);
             }
-            socket.emit('joined-room', roomCode);
         });
 
         socket.on('car-input', (inputData) => {
-            const { roomCode } = socket.data;
+            const { roomCode, playerIndex } = socket.data;
             if (roomCode) {
                 const room = roomManager.getRoom(roomCode);
                 if (room && room.screenId) {
-                    io.to(room.screenId).emit('car-input', inputData);
-                    log('INPUT', `Steer: ${inputData.steer} (Room: ${roomCode})`);
+                    io.to(room.screenId).emit('car-input', { ...inputData, playerIndex });
+                    // Only log occasionally to avoid flood
                 }
             }
         });
 
         socket.on('pedal-input', (pedalData) => {
-            const { roomCode } = socket.data;
+            const { roomCode, playerIndex } = socket.data;
             if (roomCode) {
                 const room = roomManager.getRoom(roomCode);
                 if (room && room.screenId) {
-                    io.to(room.screenId).emit('pedal-input', pedalData);
-                    log('PEDAL', `Type: ${pedalData.type}, Down: ${pedalData.isDown} (Room: ${roomCode})`);
+                    io.to(room.screenId).emit('pedal-input', { ...pedalData, playerIndex });
                 }
             }
         });
@@ -68,38 +95,38 @@ export function setupSocketHandlers(io: Server) {
             if (roomCode) {
                 const room = roomManager.getRoom(roomCode);
                 if (room) {
-                    io.to(room.screenId).emit('restart-game');
+                    io.to(roomCode).emit('restart-game');
                     log('GAME', `Restart requested for Room ${roomCode}`);
                 }
             }
         });
 
-        socket.on('game-over', () => {
+        socket.on('game-over', (data) => {
             const { roomCode } = socket.data;
             if (roomCode) {
-                const room = roomManager.getRoom(roomCode);
-                if (room && room.controllerId) {
-                    io.to(room.controllerId).emit('game-over');
-                }
+                io.to(roomCode).emit('game-over', data);
                 log('GAME', `Game Over in Room ${roomCode}`);
             }
         });
 
         socket.on('disconnect', () => {
-            const { type, roomCode } = socket.data as SocketData;
-            
+            const { type, roomCode, playerIndex } = socket.data as SocketData;
+
             // Allow RoomManager to handle state cleanup
-            roomManager.handleDisconnect(socket.id, type, roomCode);
-            
-            // If screen disconnected, notify controller to leave/reset
+            roomManager.handleDisconnect(socket.id, type as any, roomCode);
+
+            // If screen disconnected, notify controllers to leave/reset
             if (type === 'screen' && roomCode) {
                 io.to(roomCode).emit('room-closed');
             }
-            // If controller disconnected, notify screen (handled in handleDisconnect logs usually, but we need to emit)
+            // If controller disconnected, notify screen
             if (type === 'controller' && roomCode) {
                 const room = roomManager.getRoom(roomCode);
                 if (room) {
-                     io.to(room.screenId).emit('controller-disconnected');
+                    io.to(room.screenId).emit('player-disconnected', { playerIndex });
+                    io.to(roomCode).emit('lobby-update', {
+                        playersConnected: room.controllers.length
+                    });
                 }
             }
         });

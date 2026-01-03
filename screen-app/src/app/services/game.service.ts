@@ -15,10 +15,16 @@ export class GameService {
   private roomCodeSubject = new BehaviorSubject<string | null>(null);
   public roomCode$ = this.roomCodeSubject.asObservable();
 
-  private controllerConnectedSubject = new BehaviorSubject<boolean>(false);
-  public controllerConnected$ = this.controllerConnectedSubject.asObservable();
+  private playersConnectedSubject = new BehaviorSubject<number>(0);
+  public playersConnected$ = this.playersConnectedSubject.asObservable();
 
-  private inputSubject = new BehaviorSubject<CarInput>({ steer: 'CENTER' });
+  private playerJoinedSubject = new Subject<{ playerIndex: number, totalPlayers: number }>();
+  public playerJoined$ = this.playerJoinedSubject.asObservable();
+
+  private playerDisconnectedSubject = new Subject<{ playerIndex: number }>();
+  public playerDisconnected$ = this.playerDisconnectedSubject.asObservable();
+
+  private inputSubject = new Subject<CarInput>();
   public input$ = this.inputSubject.asObservable();
 
   private pedalSubject = new Subject<PedalInput>();
@@ -35,23 +41,33 @@ export class GameService {
   }
 
   private setupListeners() {
+    this.socket.onAny((eventName, ...args) => {
+      console.log(`[SOCKET-ANY] Received [${eventName}]:`, args);
+    });
+
     this.socket.on('connect', () => {
-      console.log('Screen connected to backend');
+      console.log(`[SERVICE] Connected to backend! ID: ${this.socket.id}`);
     });
 
     this.socket.on('room-created', (code: string) => {
-      // console.log('Room created:', code);
+      console.log(`[SERVICE] Room Created: ${code}`);
       this.roomCodeSubject.next(code);
     });
 
-    this.socket.on('controller-connected', () => {
-      // console.log('Controller connected!');
-      this.controllerConnectedSubject.next(true);
+    this.socket.on('player-joined', (data: { playerIndex: number, totalPlayers: number }) => {
+      console.log(`[SERVICE] player-joined received: P${data.playerIndex}, total: ${data.totalPlayers}`);
+      this.playersConnectedSubject.next(data.totalPlayers);
+      this.playerJoinedSubject.next(data);
     });
 
-    this.socket.on('controller-disconnected', () => {
-      // console.log('Controller disconnected');
-      this.controllerConnectedSubject.next(false);
+    this.socket.on('player-disconnected', (data: { playerIndex: number }) => {
+      console.log(`[SERVICE] player-disconnected: P${data.playerIndex}`);
+      this.playerDisconnectedSubject.next(data);
+    });
+
+    this.socket.on('lobby-update', (data: { playersConnected: number }) => {
+      console.log(`[SERVICE] lobby-update received: ${data.playersConnected} players connected`);
+      this.playersConnectedSubject.next(data.playersConnected);
     });
 
     this.socket.on('car-input', (data: CarInput) => {
@@ -59,7 +75,6 @@ export class GameService {
     });
 
     this.socket.on('pedal-input', (data: PedalInput) => {
-      // console.log('Screen Service received pedal:', data);
       this.pedalSubject.next(data);
     });
 
@@ -72,7 +87,7 @@ export class GameService {
     this.socket.emit('create-room');
   }
 
-  public notifyGameOver() {
-    this.socket.emit('game-over');
+  public notifyGameOver(data: { winner: number | 'DRAW' | null }) {
+    this.socket.emit('game-over', data);
   }
 }

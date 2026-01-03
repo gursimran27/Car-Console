@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -9,6 +9,9 @@ import { CommonModule } from '@angular/common';
     styleUrl: './ready-screen.component.css'
 })
 export class ReadyScreenComponent {
+    @Input() playersConnected: number = 0;
+    @Input() maxPlayers: number = 2;
+    @Input() playerIndex: number | null = null;
     @Output() ready = new EventEmitter<void>();
 
     onTap() {

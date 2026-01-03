@@ -10,19 +10,17 @@ import { Obstacle } from '../../interfaces/game.interfaces';
   styleUrl: './game-view.component.css'
 })
 export class GameViewComponent {
-  @Input() carPosition: number = 50;
-  @Input() carSpeed: number = 0; // Lateral tilt for visuals
+  @Input() players: any[] = [];
   @Input() roadOffset: number = 0;
-  @Input() roadSpeed: number = 0;
+  @Input() roadSpeed: number = 0; // Global road animation speed
   @Input() obstacles: Obstacle[] = [];
   @Input() gameRunning: boolean = false;
   @Input() gameOver: boolean = false;
-  @Input() elapsedTime: string = '0.00';
-  @Input() currentSpeed: number = 0;
-  @Input() score: number = 0;
+  @Input() remainingTime: string = '3:00';
+  @Input() winner: number | 'DRAW' | null = null;
 
-  getCarRotation() {
-    if (this.gameOver) return 0; // Animation takes over
-    return this.carSpeed * 30; // Scale for visual effect
+  getCarRotation(p: any) {
+    if (this.gameOver || p.crashed) return 0;
+    return p.carSpeed * 30;
   }
 }

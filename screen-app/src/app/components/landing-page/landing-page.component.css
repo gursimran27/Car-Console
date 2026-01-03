@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .landing-page {
   width: 100vw;
   height: 100vh;
@@ -14,10 +18,11 @@
 }
 
 .hero h1 {
-  font-size: 6rem;
+  font-size: clamp(2.5rem, 12vw, 6rem);
   margin: 0;
-  letter-spacing: 15px;
+  letter-spacing: clamp(5px, 2vw, 15px);
   background: linear-gradient(to bottom, #fff 30%, #444 100%);
+  background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
@@ -26,25 +31,30 @@
 }
 
 .subtitle {
-  font-size: 1.5rem;
+  font-size: clamp(1rem, 3vw, 1.5rem);
   color: #00ff88;
-  margin-top: 1rem;
+  margin-top: 0.5rem;
   text-transform: uppercase;
-  letter-spacing: 3px;
+  letter-spacing: 2px;
   opacity: 0.8;
 }
 
 .features {
   display: flex;
-  gap: 3rem;
-  margin: 4rem 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(1rem, 3vw, 3rem);
+  margin: clamp(2rem, 5vh, 4rem) 0;
   max-width: 1000px;
+  width: 100%;
 }
 
 .feature-card {
   flex: 1;
+  min-width: 250px;
+  max-width: 300px;
   background: rgba(255, 255, 255, 0.05);
-  padding: 2.5rem;
+  padding: clamp(1.5rem, 4vh, 2.5rem);
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -57,27 +67,21 @@
 }
 
 .feature-card .icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
+  font-size: clamp(2rem, 5vh, 3.5rem);
+  margin-bottom: 0.5rem;
 }
 
 .feature-card h3 {
-  font-size: 1.8rem;
-  margin: 1rem 0;
-  color: white;
-}
-
-.feature-card p {
-  color: #aaa;
-  line-height: 1.6;
+  font-size: clamp(1.2rem, 3vw, 1.8rem);
+  margin: 0.5rem 0;
 }
 
 .btn-create {
   background: #00ff88;
   color: #000;
   border: none;
-  padding: 1.5rem 5rem;
-  font-size: 2rem;
+  padding: clamp(1rem, 3vh, 1.5rem) clamp(2rem, 8vw, 5rem);
+  font-size: clamp(1.2rem, 4vw, 2rem);
   font-weight: 900;
   border-radius: 100px;
   cursor: pointer;
@@ -86,25 +90,13 @@
   box-shadow: 0 10px 40px rgba(0, 255, 136, 0.3);
 }
 
-.btn-create:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 60px rgba(0, 255, 136, 0.5);
-}
-
-.hint {
-  margin-top: 1.5rem;
-  color: #555;
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+@media (max-width: 768px) {
+  .hero h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
+  .features { gap: 1rem; }
+  .feature-card { min-width: 200px; padding: 1.5rem; }
 }
 
 @keyframes fadeIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
-}
-
-@media (max-width: 768px) {
-  .hero h1 { font-size: 3rem; }
-  .features { flex-direction: column; gap: 1rem; }
 }

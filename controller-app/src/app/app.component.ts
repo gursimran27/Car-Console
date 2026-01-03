@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
+import { environment } from '../environments/environment';
 import { ControllerService } from './services/controller.service';
 import { JoinScreenComponent } from './components/join-screen/join-screen.component';
 import { GameControlsComponent } from './components/game-controls/game-controls.component';
@@ -17,6 +18,9 @@ export class AppComponent implements OnInit, OnDestroy {
   joinedRoom: string | null = null;
   isReady = false;
   isGameOver = false;
+  playersConnected = 0;
+  playerIndex: number | null = null;
+  maxPlayers = environment.MAX_PLAYERS || 2;
 
   private subs: Subscription[] = [];
 
@@ -34,6 +38,12 @@ export class AppComponent implements OnInit, OnDestroy {
         if (!isMobile) {
           this.isReady = true;
         }
+      }),
+      this.controllerService.playersConnected$.subscribe(count => {
+        this.playersConnected = count;
+      }),
+      this.controllerService.playerIndex$.subscribe(idx => {
+        this.playerIndex = idx;
       }),
       this.controllerService.gameOver$.subscribe(gameOver => {
         this.isGameOver = gameOver;

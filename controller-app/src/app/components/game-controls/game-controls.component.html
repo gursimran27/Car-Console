@@ -11,7 +11,18 @@
 
   <!-- CONTROLS -->
   <div *ngIf="!isGameOver" class="controls-container">
-    <div *ngIf="!permissionGranted" class="permission-request">
+    <!-- WAITING OVERLAY -->
+    <div class="waiting-overlay" *ngIf="playersConnected < maxPlayers">
+      <div class="waiting-card">
+        <h2>PLAYER {{ playerIndex !== null ? playerIndex + 1 : '?' }}</h2>
+        <div class="loader"></div>
+        <p>CONNECTED!</p>
+        <p class="sub">Waiting for Player {{ playersConnected === 1 ? '2' : '...' }}</p>
+      </div>
+    </div>
+
+    <!-- PERMISSION MODAL -->
+    <div class="permission-modal" *ngIf="!permissionGranted">
       <p>Tap below to enable steering control</p>
       <button (click)="requestPermission()" class="btn-primary">ENABLE GYRO</button>
       <p class="hint">(Or use buttons below if no gyro)</p>
@@ -34,12 +45,14 @@
     </div>
 
     <div class="speed-controls">
-      <button (touchstart)="pressBrake()" (touchend)="releaseBrake()" (mousedown)="pressBrake()" (mouseup)="releaseBrake()" class="speed-btn brake-btn">
+      <button (touchstart)="pressBrake()" (touchend)="releaseBrake()" (mousedown)="pressBrake()"
+        (mouseup)="releaseBrake()" class="speed-btn brake-btn">
         <span class="icon">▼</span>
         <span class="label">BRAKE</span>
       </button>
 
-      <button (touchstart)="pressGas()" (touchend)="releaseGas()" (mousedown)="pressGas()" (mouseup)="releaseGas()" class="speed-btn gas-btn">
+      <button (touchstart)="pressGas()" (touchend)="releaseGas()" (mousedown)="pressGas()" (mouseup)="releaseGas()"
+        class="speed-btn gas-btn">
         <span class="icon">▲</span>
         <span class="label">GAS</span>
       </button>

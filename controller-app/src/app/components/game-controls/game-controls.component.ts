@@ -1,6 +1,7 @@
 import { Component, Input, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControllerService } from '../../services/controller.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-game-controls',
@@ -12,6 +13,9 @@ import { ControllerService } from '../../services/controller.service';
 export class GameControlsComponent implements OnDestroy, OnChanges {
   @Input() roomCode: string = '';
   @Input() isGameOver: boolean = false;
+  @Input() playersConnected: number = 0;
+  @Input() playerIndex: number | null = null;
+  maxPlayers = environment.MAX_PLAYERS || 2;
 
   permissionGranted = false;
   isSteering: 'LEFT' | 'RIGHT' | 'CENTER' = 'CENTER';
@@ -20,6 +24,7 @@ export class GameControlsComponent implements OnDestroy, OnChanges {
     if (changes['isGameOver'] && changes['isGameOver'].currentValue === true) {
       this.triggerVibration();
     }
+    console.log(`[CONTROLLER] State update. Connected: ${this.playersConnected}/${this.maxPlayers}`);
   }
 
   private triggerVibration() {

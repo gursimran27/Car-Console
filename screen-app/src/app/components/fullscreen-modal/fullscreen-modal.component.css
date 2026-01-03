@@ -1,3 +1,7 @@
+:host {
+  display: block;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -15,33 +19,35 @@
 
 .modal-content {
   background: #1a1a1a;
-  padding: 3rem;
+  padding: clamp(1.5rem, 5vh, 3rem);
   border-radius: 32px;
   text-align: center;
   max-width: 500px;
   width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
   animation: contentSlide 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
+  font-size: clamp(2rem, 10vh, 4rem);
+  margin-bottom: 0.5rem;
 }
 
 h2 {
-  font-size: 2rem;
-  margin: 0 0 1rem 0;
+  font-size: clamp(1.5rem, 6vw, 2rem);
+  margin: 0 0 0.5rem 0;
   color: white;
   letter-spacing: 1px;
 }
 
 p {
   color: #888;
-  font-size: 1.1rem;
+  font-size: clamp(0.9rem, 3vw, 1.1rem);
   line-height: 1.5;
-  margin-bottom: 2.5rem;
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
 }
 
 .button-group {

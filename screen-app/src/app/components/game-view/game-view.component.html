@@ -1,64 +1,60 @@
 <div class="game-container" [class.shaking]="gameOver">
-  <!-- HUD -->
-  <div class="hud" *ngIf="!gameOver">
-    <div class="left-hud">
-      <div class="timer">{{ elapsedTime }}s</div>
-      <div class="score">SCORE: {{ score }}</div>
+  <!-- MULTIPLAYER HUD -->
+  <div class="hud" *ngIf="!gameOver && players.length > 0">
+    <div class="player-hud p1">
+      <div class="score">P1: {{ players[0]?.score }}</div>
     </div>
-    <div class="speed">SPEED: {{ (currentSpeed * 100).toFixed(0) }}</div>
+
+    <div class="center-hud">
+      <div class="timer">{{ remainingTime }}</div>
+    </div>
+
+    <div class="player-hud p2" *ngIf="players.length > 1">
+      <div class="score">P2: {{ players[1]?.score }}</div>
+    </div>
   </div>
 
   <!-- ROAD -->
   <div class="road">
     <div class="road-lines" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
 
-    <!-- OBSTACLES -->
-    <!-- <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
-      [style.width.%]="obs.width" [style.height.%]="obs.height">
-      🪨
-    </div> -->
+    <!-- STARS (STARS) -->
     <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
       [style.width.%]="obs.width" [style.height.%]="obs.height">
       ⭐
     </div>
 
-    <!-- CAR -->
-    <div class="car" [style.left.%]="carPosition" [class.crashed]="gameOver"
-      [style.transform]="'translateX(-50%) rotate(' + getCarRotation() + 'deg)'">
+    <!-- CARS -->
+    <div *ngFor="let p of players" class="car p{{ p.index + 1 }}" [class.crashed]="p.crashed"
+      [style.left.%]="p.carPosition" [style.bottom.%]="p.displayY"
+      [style.transform]="'translateX(-50%) rotate(' + getCarRotation(p) + 'deg)'">
       <div class="car-body">
         <div class="lights"></div>
         <div class="roof"></div>
+        <div class="player-label">P{{ p.index + 1 }}</div>
       </div>
       <div class="shadow"></div>
-    </div>
 
-    <!-- EXPLOSION -->
-    <div *ngIf="gameOver" class="explosion" [style.left.%]="carPosition" style="bottom: 10%">
+      <!-- EXPLOSION (Per car) -->
+      <div *ngIf="p.crashed" class="explosion"></div>
     </div>
   </div>
 
-  <!-- GAME OVER OVERLAY -->
+  <!-- GAME OVER OVERLAY (Multiplayer) -->
   <div *ngIf="gameOver" class="game-over">
-    <div class="icon">💥</div>
-    <h1>CRASHED!</h1>
+    <div class="icon">{{ winner === 'DRAW' ? '🤝' : '🏆' }}</div>
+    <h1 *ngIf="winner === 'DRAW'">IT'S A DRAW!</h1>
+    <h1 *ngIf="winner !== 'DRAW'">PLAYER {{ winner === 0 ? '1' : '2' }} WINS!</h1>
 
     <div class="stats">
-      <div class="stat-item">
-        <span class="stat-label">SURVIVED</span>
-        <span class="stat-value">{{ elapsedTime }}s</span>
-      </div>
-      <!-- <div class="stat-item">
-        <span class="stat-label">TOP SPEED</span>
-        <span class="stat-value">{{ (currentSpeed * 100).toFixed(0) }}</span>
-      </div> -->
-      <div class="stat-item">
-        <span class="stat-label">POINTS</span>
-        <span class="stat-value">{{ score }}</span>
+      <div class="stat-item" *ngFor="let p of players">
+        <span class="stat-label">P{{ p.index + 1 }} POINTS</span>
+        <span class="stat-value">{{ p.score }}</span>
       </div>
     </div>
 
     <div class="restart-info">
-      <p>WAITING FOR RESTART...</p>
+      <p>GET READY FOR NEXT ROUND...</p>
       <div class="restart-bar">
         <div class="restart-progress"></div>
       </div>

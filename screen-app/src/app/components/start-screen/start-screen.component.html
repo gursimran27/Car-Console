@@ -1,14 +1,20 @@
 <div class="start-screen">
+  <div class="connection-status" *ngIf="roomCode">
+    <span class="pulse-dot"></span>
+    SERVER CONNECTED
+  </div>
   <h1>Race Car Console</h1>
 
-  <div class="status">
-    <p *ngIf="!controllerConnected" class="waiting">
-      Waiting for controller to join...
-    </p>
-    <p *ngIf="controllerConnected" class="connected">
-      Controller Connected! Starting...
-    </p>
+  <div class="status-badge" [class.ready]="playersConnected >= maxPlayers">
+    <span class="pulse" *ngIf="playersConnected < maxPlayers"></span>
+    {{ playersConnected }}/{{ maxPlayers }} Players Joined
   </div>
+  <p class="waiting-text" *ngIf="playersConnected < maxPlayers">
+    Waiting for {{ maxPlayers - playersConnected }} more...
+  </p>
+  <p class="waiting-text" *ngIf="playersConnected >= maxPlayers">
+    Initializing Game...
+  </p>
 
   <div *ngIf="!roomCode">
     <button (click)="onCreateRoom()" class="btn-primary">CREATE ROOM</button>

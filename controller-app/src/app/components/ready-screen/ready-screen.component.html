@@ -3,8 +3,19 @@
         <div class="pulse-circle">
             <div class="icon">📱</div>
         </div>
-        <h1>READY?</h1>
-        <p>Tap anywhere to start steering</p>
+        <div class="info">
+            <h1>YOU ARE PLAYER {{ playerIndex !== null ? playerIndex + 1 : '?' }}</h1>
+            <div class="status-badge">
+                {{ playersConnected }}/{{ maxPlayers }} Players Joined
+            </div>
+        </div>
+        <div class="tap-area">
+            <p>Tap to start being a controller</p>
+            <span class="icon">🏎️</span>
+        </div>
+        <div class="waiting-hint" *ngIf="playersConnected < maxPlayers">
+            Waiting for {{ maxPlayers - playersConnected }} more players...
+        </div>
         <div class="hint">Ensures Fullscreen & Landscape Mode</div>
     </div>
 </div>
