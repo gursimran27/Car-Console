@@ -19,6 +19,7 @@ export class GameViewComponent {
   @Input() gameOver: boolean = false;
   @Input() elapsedTime: string = '0.00';
   @Input() currentSpeed: number = 0;
+  @Input() score: number = 0;
 
   getCarRotation() {
     if (this.gameOver) return 0; // Animation takes over

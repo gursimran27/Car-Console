@@ -28,6 +28,7 @@ export class AppComponent implements OnInit, AfterViewInit {
   // Game State
   gameRunning = false;
   gameOver = false;
+  score = 0;
 
   carPosition = 50; // Percentage 0-100 (50 is center)
   carSpeed = 0; // Horizontal speed
@@ -124,6 +125,7 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.obstacles = [];
     this.carPosition = 50;
     this.carSpeed = 0;
+    this.score = 0;
 
     // Timer Init
     this.startTime = Date.now();
@@ -240,7 +242,8 @@ export class AppComponent implements OnInit, AfterViewInit {
       const obsRect = { x: obs.x, y: obs.y, w: obs.width, h: obs.height };
 
       if (this.checkCollision(carRect, obsRect)) {
-        this.handleCrash();
+        // this.handleCrash(); // for crash
+        this.handleScoreCollision(i);// for score
       }
 
       // Remove if off screen
@@ -262,6 +265,12 @@ export class AppComponent implements OnInit, AfterViewInit {
       height: 10,
       type: 'rock'
     });
+  }
+
+  handleScoreCollision(index: number) {
+    this.score += 10;
+    // Remove hit obstacle
+    this.obstacles.splice(index, 1);
   }
 
   checkCollision(car: any, obs: any): boolean {

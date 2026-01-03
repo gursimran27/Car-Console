@@ -1,7 +1,10 @@
 <div class="game-container" [class.shaking]="gameOver">
   <!-- HUD -->
   <div class="hud" *ngIf="!gameOver">
-    <div class="timer">{{ elapsedTime }}s</div>
+    <div class="left-hud">
+      <div class="timer">{{ elapsedTime }}s</div>
+      <div class="score">SCORE: {{ score }}</div>
+    </div>
     <div class="speed">SPEED: {{ (currentSpeed * 100).toFixed(0) }}</div>
   </div>
 
@@ -10,9 +13,13 @@
     <div class="road-lines" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
 
     <!-- OBSTACLES -->
-    <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
+    <!-- <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
       [style.width.%]="obs.width" [style.height.%]="obs.height">
       🪨
+    </div> -->
+    <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
+      [style.width.%]="obs.width" [style.height.%]="obs.height">
+      ⭐
     </div>
 
     <!-- CAR -->
@@ -40,9 +47,13 @@
         <span class="stat-label">SURVIVED</span>
         <span class="stat-value">{{ elapsedTime }}s</span>
       </div>
-      <div class="stat-item">
+      <!-- <div class="stat-item">
         <span class="stat-label">TOP SPEED</span>
         <span class="stat-value">{{ (currentSpeed * 100).toFixed(0) }}</span>
+      </div> -->
+      <div class="stat-item">
+        <span class="stat-label">POINTS</span>
+        <span class="stat-value">{{ score }}</span>
       </div>
     </div>
 

@@ -35,6 +35,18 @@
   color: #00ff88;
 }
 
+.left-hud {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.score {
+  font-size: 1.2rem;
+  color: #fff;
+  opacity: 0.8;
+}
+
 .road {
   position: absolute;
   top: 0;
@@ -228,7 +240,7 @@
   height: 100%;
   background: linear-gradient(to right, #ff3333, #ff8800);
   width: 0%;
-  animation: progressFill 3s linear;
+  animation: progressFill 3s ease-in-out infinite alternate;
 }
 
 /* ANIMATIONS */
