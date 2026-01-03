@@ -1,14 +1,19 @@
 :host {
   font-family: 'Inter', sans-serif;
   display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .container {
+  width: 100vw;
   height: 100vh;
   background: linear-gradient(135deg, #1a1a1a, #000000);
   color: white;
   overflow: hidden;
   user-select: none;
+  touch-action: none; /* Prevents browser gestures like pull-to-refresh */
 }
 
 

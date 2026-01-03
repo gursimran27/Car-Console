@@ -38,24 +38,6 @@ export class JoinScreenComponent implements OnInit {
   joinRoom() {
     if (this.roomCodeInput.length === 6) {
       this.controllerService.joinRoom(this.roomCodeInput);
-      this.handleMobileDisplay();
-    }
-  }
-
-  handleMobileDisplay() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    if (isMobile) {
-      try {
-        const elem = document.documentElement;
-        if (elem.requestFullscreen) {
-          elem.requestFullscreen().catch(err => console.log('Fullscreen failed:', err));
-        } else if ((elem as any).webkitRequestFullscreen) {
-          (elem as any).webkitRequestFullscreen();
-        }
-        if (screen.orientation && (screen.orientation as any).lock) {
-          (screen.orientation as any).lock('landscape').catch((err: any) => console.log('Orientation lock failed:', err));
-        }
-      } catch (e) { console.log(e); }
     }
   }
 }
