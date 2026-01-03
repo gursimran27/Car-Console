@@ -21,7 +21,7 @@ export class GameViewComponent {
   @Input() currentSpeed: number = 0;
 
   getCarRotation() {
-    // Tilt car based on turning speed
+    if (this.gameOver) return 0; // Animation takes over
     return this.carSpeed * 30; // Scale for visual effect
   }
 }

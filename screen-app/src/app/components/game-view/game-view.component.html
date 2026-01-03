@@ -1,6 +1,6 @@
-<div class="game-container">
+<div class="game-container" [class.shaking]="gameOver">
   <!-- HUD -->
-  <div class="hud">
+  <div class="hud" *ngIf="!gameOver">
     <div class="timer">{{ elapsedTime }}s</div>
     <div class="speed">SPEED: {{ (currentSpeed * 100).toFixed(0) }}</div>
   </div>
@@ -8,19 +8,15 @@
   <!-- ROAD -->
   <div class="road">
     <div class="road-lines" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
-    
+
     <!-- OBSTACLES -->
-    <div *ngFor="let obs of obstacles" class="obstacle"
-      [style.left.%]="obs.x"
-      [style.top.%]="obs.y"
-      [style.width.%]="obs.width"
-      [style.height.%]="obs.height">
-        🪨
+    <div *ngFor="let obs of obstacles" class="obstacle" [style.left.%]="obs.x" [style.top.%]="obs.y"
+      [style.width.%]="obs.width" [style.height.%]="obs.height">
+      🪨
     </div>
 
     <!-- CAR -->
-    <div class="car" 
-      [style.left.%]="carPosition" 
+    <div class="car" [style.left.%]="carPosition" [class.crashed]="gameOver"
       [style.transform]="'translateX(-50%) rotate(' + getCarRotation() + 'deg)'">
       <div class="car-body">
         <div class="lights"></div>
@@ -28,11 +24,33 @@
       </div>
       <div class="shadow"></div>
     </div>
+
+    <!-- EXPLOSION -->
+    <div *ngIf="gameOver" class="explosion" [style.left.%]="carPosition" style="bottom: 10%">
+    </div>
   </div>
 
   <!-- GAME OVER OVERLAY -->
   <div *ngIf="gameOver" class="game-over">
+    <div class="icon">💥</div>
     <h1>CRASHED!</h1>
-    <p>Waiting for restart...</p>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-label">SURVIVED</span>
+        <span class="stat-value">{{ elapsedTime }}s</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">TOP SPEED</span>
+        <span class="stat-value">{{ (currentSpeed * 100).toFixed(0) }}</span>
+      </div>
+    </div>
+
+    <div class="restart-info">
+      <p>WAITING FOR RESTART...</p>
+      <div class="restart-bar">
+        <div class="restart-progress"></div>
+      </div>
+    </div>
   </div>
 </div>

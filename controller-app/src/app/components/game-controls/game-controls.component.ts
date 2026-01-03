@@ -12,18 +12,18 @@ import { ControllerService } from '../../services/controller.service';
 export class GameControlsComponent implements OnDestroy {
   @Input() roomCode: string = '';
   @Input() isGameOver: boolean = false;
-  
+
   permissionGranted = false;
   isSteering: 'LEFT' | 'RIGHT' | 'CENTER' = 'CENTER';
-  
+
   // Gyro
   private boundHandleOrientation: any;
 
-  constructor(private controllerService: ControllerService) {}
+  constructor(private controllerService: ControllerService) { }
 
   ngOnDestroy() {
     if (this.boundHandleOrientation) {
-        window.removeEventListener('deviceorientation', this.boundHandleOrientation);
+      window.removeEventListener('deviceorientation', this.boundHandleOrientation);
     }
   }
 
@@ -57,7 +57,7 @@ export class GameControlsComponent implements OnDestroy {
 
   handleOrientation(event: DeviceOrientationEvent) {
     const gamma = event.gamma; // Left/Right tilt (-90 to 90)
-    
+
     if (gamma === null) return;
 
     if (gamma < -15) {
@@ -77,18 +77,22 @@ export class GameControlsComponent implements OnDestroy {
   // Pedals
   pressGas() { this.controllerService.sendPedal('GAS', true); }
   releaseGas() { this.controllerService.sendPedal('GAS', false); }
-  
+
   pressBrake() { this.controllerService.sendPedal('BRAKE', true); }
   releaseBrake() { this.controllerService.sendPedal('BRAKE', false); }
 
   restartGame() {
-      this.controllerService.restartGame();
+    this.isSteering = 'CENTER';
+    this.controllerService.sendInput('CENTER');
+    this.releaseGas();
+    this.releaseBrake();
+    this.controllerService.restartGame();
   }
 
   private sendSteer(val: 'LEFT' | 'RIGHT' | 'CENTER') {
-      if (this.isSteering !== val) {
-        this.isSteering = val;
-        this.controllerService.sendInput(val);
-      }
+    if (this.isSteering !== val) {
+      this.isSteering = val;
+      this.controllerService.sendInput(val);
+    }
   }
 }
