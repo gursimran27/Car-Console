@@ -1,6 +1,13 @@
 .main-container {
   width: 100vw;
   height: 100vh;
-  background: #111; /* Fallback background */
-  overflow: hidden;
+  background: #111;
+  /* Fallback background */
+  overflow: auto;
+
+  ::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+    /* make scrollbar transparent */
+  }
 }
