@@ -37,7 +37,6 @@ export class GameService {
   private setupListeners() {
     this.socket.on('connect', () => {
       console.log('Screen connected to backend');
-      this.createRoom();
     });
 
     this.socket.on('room-created', (code: string) => {
