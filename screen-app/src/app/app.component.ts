@@ -227,7 +227,7 @@ export class AppComponent implements OnInit, AfterViewInit {
           const obsRect = { x: obs.x, y: obs.y, w: obs.width, h: obs.height };
           
           if (this.checkCollision(carRect, obsRect)) {
-              // this.handleCrash();
+              this.handleCrash();
           }
 
           // Remove if off screen
