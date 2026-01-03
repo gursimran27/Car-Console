@@ -1,16 +1,18 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { GameService } from './services/game.service';
-import { StartScreenComponent } from './components/start-screen/start-screen.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import { FullscreenModalComponent } from './components/fullscreen-modal/fullscreen-modal.component';
 import { GameViewComponent } from './components/game-view/game-view.component';
-import { Obstacle } from './interfaces/game.interfaces';
+import { StartScreenComponent } from './components/start-screen/start-screen.component';
 import * as QRCode from 'qrcode';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { GameService } from './services/game.service';
 import { environment } from '../environments/environment';
+import { CommonModule } from '@angular/common';
+import { Obstacle } from './interfaces/game.interfaces';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, StartScreenComponent, GameViewComponent],
+  imports: [CommonModule, StartScreenComponent, GameViewComponent, LandingPageComponent, FullscreenModalComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -18,6 +20,10 @@ export class AppComponent implements OnInit, AfterViewInit {
   roomCode: string | null = null;
   controllerConnected = false;
   qrCodeUrl: string | null = null;
+
+  // App Flow State
+  currentStep: 'LANDING' | 'LOBBY' | 'GAME' = 'LANDING';
+  showFullscreenModal = false;
 
   // Game State
   gameRunning = false;
@@ -70,8 +76,8 @@ export class AppComponent implements OnInit, AfterViewInit {
 
     this.gameService.controllerConnected$.subscribe(connected => {
       this.controllerConnected = connected;
-      if (connected && !this.gameRunning && !this.gameOver) {
-        this.startGame();
+      if (connected && this.currentStep === 'LOBBY') {
+        this.showFullscreenModal = true;
       }
     });
 
@@ -98,9 +104,19 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   createRoom() {
     this.gameService.createRoom();
+    this.currentStep = 'LOBBY';
+  }
+
+  handleFullscreenDecision(mode: 'FULL' | 'WINDOW') {
+    this.showFullscreenModal = false;
+    if (mode === 'FULL') {
+      this.attemptFullscreen();
+    }
+    this.startGame();
   }
 
   startGame() {
+    this.currentStep = 'GAME';
     this.gameRunning = true;
     this.gameOver = false;
     this.currentSpeed = 0;
@@ -112,9 +128,6 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Timer Init
     this.startTime = Date.now();
     this.elapsedTime = '0.00';
-
-    // Attempt Fullscreen
-    this.attemptFullscreen();
   }
 
   attemptFullscreen() {
