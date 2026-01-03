@@ -1,0 +1,184 @@
+.gamepad-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  padding: 10px;
+  background: rgba(0,0,0,0.5);
+  text-align: center;
+  font-size: 0.9rem;
+  color: #aaa;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.game-over-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.game-over-screen h2 {
+  color: #ff4444;
+  font-size: 3rem;
+  margin-bottom: 2rem;
+}
+
+.controls-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* Distribute vertical space */
+  padding: 20px;
+  padding-top: 40px; /* Space for header */
+}
+
+.permission-request {
+  text-align: center;
+  margin-bottom: 1rem;
+  background: rgba(0,0,0,0.3);
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.hint {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.steer-btn {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 4px solid rgba(255,255,255,0.2);
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.1s;
+}
+
+.steer-btn:active, .steer-btn.active {
+  background: rgba(255,255,255,0.2);
+  transform: scale(0.95);
+  border-color: #00ff88;
+}
+
+.status-indicator {
+  width: 20px;
+  height: 20px;
+  background: #333;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.center-light {
+  width: 10px;
+  height: 10px;
+  background: #555;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.center-light.active {
+  background: #00ff88;
+  box-shadow: 0 0 10px #00ff88;
+}
+
+/* Speed Controls */
+.speed-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+}
+
+.speed-btn {
+  flex: 1;
+  height: 100px;
+  border-radius: 12px;
+  border: none;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1.2rem;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform 0.1s, filter 0.1s;
+}
+
+.speed-btn:active {
+  transform: scale(0.96);
+}
+
+.brake-btn {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  box-shadow: 0 4px 0 #990000;
+}
+
+.brake-btn:active {
+  box-shadow: 0 0 0 #990000;
+  transform: translateY(4px);
+}
+
+.gas-btn {
+  background: linear-gradient(135deg, #00ff88, #00cc6a);
+  color: #00331a;
+  box-shadow: 0 4px 0 #009950;
+}
+
+.gas-btn:active {
+  box-shadow: 0 0 0 #009950;
+  transform: translateY(4px);
+}
+
+.icon {
+  font-size: 2rem;
+  margin-bottom: 5px;
+}
+.label {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.btn-primary {
+  background: #00ff88;
+  color: #000;
+  border: none;
+  padding: 0.8rem 1.5rem; /* Smaller padding for internal buttons */
+  font-size: 1rem;
+  font-weight: bold; 
+  border-radius: 8px;
+  cursor: pointer;
+}

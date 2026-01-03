@@ -1,21 +1,16 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { GameService, CarInput } from './services/game.service';
+import { GameService } from './services/game.service';
+import { StartScreenComponent } from './components/start-screen/start-screen.component';
+import { GameViewComponent } from './components/game-view/game-view.component';
+import { Obstacle } from './interfaces/game.interfaces';
 import * as QRCode from 'qrcode';
-
-interface Obstacle {
-  id: number;
-  x: number; // % horizontal
-  y: number; // % vertical (0 top, 100 bottom)
-  width: number; // %
-  height: number; // % (visual height ref)
-  type: string;
-}
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, StartScreenComponent, GameViewComponent],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
@@ -40,10 +35,21 @@ export class AppComponent implements OnInit, AfterViewInit {
   obstacleTimer = 0;
   obstacleSpawnRate = 50; // More frequent spawns
 
-  // Constants
-  private readonly MAX_SPEED = 1.0; 
-  private readonly ACCEL = 0.1;
-  private readonly FRICTION = 0.05;
+  // Speed Control
+  currentSpeed = 0;
+  isGasPressed = false;
+  isBrakePressed = false;
+  
+  // Physics Constants
+  private readonly MAX_SPEED = 2.5; // Max speed multiplier
+  private readonly ACCELERATION_RATE = 0.05;
+  private readonly BRAKING_RATE = 0.1;
+  private readonly FRICTION_RATE = 0.02;
+
+  // Constants 
+  private readonly ACCEL = 0.04; // Gentle acceleration
+  private readonly FRICTION = 0.15; // High friction (stops quick)
+  private readonly MAX_LATERAL_SPEED = 0.8; // Low max speed (no flying)
   private readonly LANE_Bounds = { min: 10, max: 90 }; 
   private readonly CAR_WIDTH = 15; // Match CSS 15%
   private readonly CAR_HEIGHT = 15; // Match CSS 15%
@@ -73,8 +79,16 @@ export class AppComponent implements OnInit, AfterViewInit {
       this.currentInput = input.steer;
     });
 
+    this.gameService.pedal$.subscribe(pedal => {
+        if (pedal.type === 'GAS') {
+            this.isGasPressed = pedal.isDown;
+        } else if (pedal.type === 'BRAKE') {
+            this.isBrakePressed = pedal.isDown;
+        }
+    });
+
     this.gameService.gameRestart$.subscribe(() => {
-        this.resetGame();
+        this.startGame();
     });
   }
 
@@ -82,10 +96,15 @@ export class AppComponent implements OnInit, AfterViewInit {
     this.gameLoop();
   }
 
+  createRoom() {
+    this.gameService.createRoom();
+  }
+
   startGame() {
     this.gameRunning = true;
     this.gameOver = false;
-    this.roadSpeed = 1.5; // vertical speed % per frame
+    this.currentSpeed = 0;
+    this.roadSpeed = 0;
     this.obstacles = [];
     this.carPosition = 50;
     this.carSpeed = 0;
@@ -93,10 +112,22 @@ export class AppComponent implements OnInit, AfterViewInit {
     // Timer Init
     this.startTime = Date.now();
     this.elapsedTime = '0.00';
+    
+    // Attempt Fullscreen
+    this.attemptFullscreen();
   }
 
-  resetGame() {
-      this.startGame();
+  attemptFullscreen() {
+    try {
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen().catch(e => console.warn('Fullscreen blocked:', e));
+        } else if ((elem as any).webkitRequestFullscreen) {
+            (elem as any).webkitRequestFullscreen();
+        }
+    } catch (err) {
+        console.log('Fullscreen error:', err);
+    }
   }
 
   gameLoop = () => {
@@ -114,7 +145,24 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   updatePhysics() {
-    // 1. Handle Input -> Speed
+    // 0. Speed Physics
+    if (this.isGasPressed) {
+        this.currentSpeed += this.ACCELERATION_RATE;
+    } else if (this.isBrakePressed) {
+        this.currentSpeed -= this.BRAKING_RATE;
+    } else {
+        // Coasting friction
+        this.currentSpeed -= this.FRICTION_RATE;
+    }
+
+    // Clamp Speed
+    if (this.currentSpeed > this.MAX_SPEED) this.currentSpeed = this.MAX_SPEED;
+    if (this.currentSpeed < 0) this.currentSpeed = 0;
+
+    // Apply speed to road (visuals) and obstacles
+    this.roadSpeed = 1.5 * this.currentSpeed;
+
+    // 1. Handle Input -> Speed (Lateral)
     if (this.currentInput === 'LEFT') {
       this.carSpeed -= this.ACCEL;
     } else if (this.currentInput === 'RIGHT') {
@@ -131,8 +179,8 @@ export class AppComponent implements OnInit, AfterViewInit {
     }
 
     // Clamp Max Speed (Lateral)
-    if (this.carSpeed > this.MAX_SPEED) this.carSpeed = this.MAX_SPEED;
-    if (this.carSpeed < -this.MAX_SPEED) this.carSpeed = -this.MAX_SPEED;
+    if (this.carSpeed > this.MAX_LATERAL_SPEED) this.carSpeed = this.MAX_LATERAL_SPEED;
+    if (this.carSpeed < -this.MAX_LATERAL_SPEED) this.carSpeed = -this.MAX_LATERAL_SPEED;
 
     // 2. Update Position
     this.carPosition += this.carSpeed;
@@ -154,19 +202,20 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   updateObstacles() {
-      // Spawn
-      this.obstacleTimer++;
-      if (this.obstacleTimer > this.obstacleSpawnRate) {
-          this.spawnObstacle();
-          this.obstacleTimer = 0;
-          // Increase difficulty?
-          if (this.obstacleSpawnRate > 30) this.obstacleSpawnRate -= 2;
+      // Spawn only if moving
+      if (this.currentSpeed > 0.1) {
+        this.obstacleTimer++;
+        if (this.obstacleTimer > this.obstacleSpawnRate) {
+            this.spawnObstacle();
+            this.obstacleTimer = 0;
+            if (this.obstacleSpawnRate > 30) this.obstacleSpawnRate -= 2;
+        }
       }
 
       // Move & Filter
       const carRect = { 
           x: this.carPosition - (this.CAR_WIDTH/2), 
-          y: 90, // Car is fixed visually at bottom 10% (logic y = 100 - 10 = 90)
+          y: 90, 
           w: this.CAR_WIDTH, 
           h: this.CAR_HEIGHT 
       };
@@ -175,17 +224,10 @@ export class AppComponent implements OnInit, AfterViewInit {
           let obs = this.obstacles[i];
           obs.y += this.roadSpeed;
 
-          // Check Collision
-          // Simple AABB
-          // Car Y is approx 75% to 90% in view coordinates? 
-          // Let's align with CSS. .car bottom: 100px.
-          
-          // Let's convert to simple percentage logic collision for prototype
-          // Car is at ~ height-100px. In %, let's say car is at Y=80% to 90%.
           const obsRect = { x: obs.x, y: obs.y, w: obs.width, h: obs.height };
           
           if (this.checkCollision(carRect, obsRect)) {
-              this.handleCrash();
+              // this.handleCrash();
           }
 
           // Remove if off screen
@@ -197,7 +239,6 @@ export class AppComponent implements OnInit, AfterViewInit {
 
   spawnObstacle() {
       const laneWidth = 20;
-      // Random x between min and max bounds
       const x = Math.random() * (this.LANE_Bounds.max - this.LANE_Bounds.min - laneWidth) + this.LANE_Bounds.min;
       
       this.obstacles.push({
@@ -211,7 +252,6 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   checkCollision(car: any, obs: any): boolean {
-      // car: {x,y,w,h}, obs: {x,y,w,h} in percentages
       return (
           car.x < obs.x + obs.w &&
           car.x + car.w > obs.x &&
@@ -229,14 +269,16 @@ export class AppComponent implements OnInit, AfterViewInit {
   updateVisuals() {
     if (this.gameRunning) {
        this.roadOffset += this.roadSpeed * 10; // px approximation
-       if (this.roadOffset > 100) this.roadOffset = 0;
+       if (this.roadOffset > 120) this.roadOffset = 0;
     }
   }
 
   async generateQR(code: string) {
-    const host = window.location.hostname;
-    // Assume controller is on port 4201
-    const url = `https://car-console-controller.vercel.app?room=${code}`;
+    // Determine controller URL based on valid production check or local fallback
+    // For now we keep the same logic or use environment if we want to synchronize URLs
+    // But typically screen app generates QR for 'controller' URL.
+    // Ideally this should also be in environment.ts but we'll stick to logic.
+    const url = `${environment.apiUrl}?room=${code}`; 
     try {
       this.qrCodeUrl = await QRCode.toDataURL(url, { margin: 1, scale: 6 });
     } catch (err) {

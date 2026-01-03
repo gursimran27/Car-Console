@@ -1,0 +1,26 @@
+<div class="start-screen">
+  <h1>Race Car Console</h1>
+
+  <div class="status">
+    <p *ngIf="!controllerConnected" class="waiting">
+      Waiting for controller to join...
+    </p>
+    <p *ngIf="controllerConnected" class="connected">
+      Controller Connected! Starting...
+    </p>
+  </div>
+
+  <div *ngIf="!roomCode">
+    <button (click)="onCreateRoom()" class="btn-primary">CREATE ROOM</button>
+  </div>
+
+  <div *ngIf="roomCode" class="room-info">
+    <p class="code-label">ROOM CODE</p>
+    <div class="code-display">{{ roomCode }}</div>
+
+    <div *ngIf="qrCodeUrl" class="qr-container">
+      <img [src]="qrCodeUrl" alt="Join via QR Code" />
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="game-container">
+  <!-- HUD -->
+  <div class="hud">
+    <div class="timer">{{ elapsedTime }}s</div>
+    <div class="speed">SPEED: {{ (currentSpeed * 100).toFixed(0) }}</div>
+  </div>
+
+  <!-- ROAD -->
+  <div class="road">
+    <div class="road-lines" [style.transform]="'translateY(' + roadOffset + 'px)'"></div>
+    
+    <!-- OBSTACLES -->
+    <div *ngFor="let obs of obstacles" class="obstacle"
+      [style.left.%]="obs.x"
+      [style.top.%]="obs.y"
+      [style.width.%]="obs.width"
+      [style.height.%]="obs.height">
+        🪨
+    </div>
+
+    <!-- CAR -->
+    <div class="car" 
+      [style.left.%]="carPosition" 
+      [style.transform]="'translateX(-50%) rotate(' + getCarRotation() + 'deg)'">
+      <div class="car-body">
+        <div class="lights"></div>
+        <div class="roof"></div>
+      </div>
+      <div class="shadow"></div>
+    </div>
+  </div>
+
+  <!-- GAME OVER OVERLAY -->
+  <div *ngIf="gameOver" class="game-over">
+    <h1>CRASHED!</h1>
+    <p>Waiting for restart...</p>
+  </div>
+</div>

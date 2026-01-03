@@ -1,0 +1,9 @@
+<div class="join-screen">
+  <h1>Car Controller</h1>
+  <div class="input-group">
+    <input [(ngModel)]="roomCodeInput" placeholder="ENTER CODE" maxlength="6" (keyup.enter)="joinRoom()"
+      class="code-input" />
+    <button (click)="joinRoom()" class="btn-primary">JOIN</button>
+  </div>
+  <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+</div>
