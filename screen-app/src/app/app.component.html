@@ -5,7 +5,7 @@
 
   <!-- 2. Lobby (QR Screen) -->
   <app-start-screen *ngIf="currentStep === 'LOBBY'" [roomCode]="roomCode" [controllerConnected]="controllerConnected"
-    [qrCodeUrl]="qrCodeUrl">
+    [qrCodeUrl]="qrCodeUrl" (createRoom)="createRoom()">
   </app-start-screen>
 
   <!-- 3. Fullscreen Modal (Overlay) -->

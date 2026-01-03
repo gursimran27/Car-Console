@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControllerService } from '../../services/controller.service';
 
@@ -9,12 +9,25 @@ import { ControllerService } from '../../services/controller.service';
   templateUrl: './game-controls.component.html',
   styleUrl: './game-controls.component.css'
 })
-export class GameControlsComponent implements OnDestroy {
+export class GameControlsComponent implements OnDestroy, OnChanges {
   @Input() roomCode: string = '';
   @Input() isGameOver: boolean = false;
 
   permissionGranted = false;
   isSteering: 'LEFT' | 'RIGHT' | 'CENTER' = 'CENTER';
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['isGameOver'] && changes['isGameOver'].currentValue === true) {
+      this.triggerVibration();
+    }
+  }
+
+  private triggerVibration() {
+    if ('vibrate' in navigator) {
+      // Vibrate for 300ms, pause for 100ms, then vibrate for 500ms for a heavy crash feel
+      navigator.vibrate([300, 100, 500]);
+    }
+  }
 
   // Gyro
   private boundHandleOrientation: any;
