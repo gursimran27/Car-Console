@@ -1,20 +1,20 @@
 <div class="main-container">
-  <app-start-screen *ngIf="!gameRunning"
-    [roomCode]="roomCode" 
-    [controllerConnected]="controllerConnected"
-    [qrCodeUrl]="qrCodeUrl"
-    (createRoom)="createRoom()">
+  <!-- 1. Landing Page -->
+  <app-landing-page *ngIf="currentStep === 'LANDING'" (createRoom)="createRoom()">
+  </app-landing-page>
+
+  <!-- 2. Lobby (QR Screen) -->
+  <app-start-screen *ngIf="currentStep === 'LOBBY'" [roomCode]="roomCode" [controllerConnected]="controllerConnected"
+    [qrCodeUrl]="qrCodeUrl">
   </app-start-screen>
 
-  <app-game-view *ngIf="gameRunning"
-    [carPosition]="carPosition"
-    [carSpeed]="carSpeed"
-    [roadOffset]="roadOffset"
-    [roadSpeed]="roadSpeed"
-    [obstacles]="obstacles"
-    [gameRunning]="gameRunning"
-    [gameOver]="gameOver"
-    [elapsedTime]="elapsedTime"
-    [currentSpeed]="currentSpeed">
+  <!-- 3. Fullscreen Modal (Overlay) -->
+  <app-fullscreen-modal *ngIf="showFullscreenModal" (selection)="handleFullscreenDecision($event)">
+  </app-fullscreen-modal>
+
+  <!-- 4. Game View -->
+  <app-game-view *ngIf="currentStep === 'GAME'" [carPosition]="carPosition" [carSpeed]="carSpeed"
+    [roadOffset]="roadOffset" [roadSpeed]="roadSpeed" [obstacles]="obstacles" [gameRunning]="gameRunning"
+    [gameOver]="gameOver" [elapsedTime]="elapsedTime" [currentSpeed]="currentSpeed">
   </app-game-view>
 </div>
