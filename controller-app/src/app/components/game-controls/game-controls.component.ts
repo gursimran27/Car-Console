@@ -56,13 +56,34 @@ export class GameControlsComponent implements OnDestroy {
   }
 
   handleOrientation(event: DeviceOrientationEvent) {
-    const gamma = event.gamma; // Left/Right tilt (-90 to 90)
+    const beta = event.beta;   // front-back tilt (-180 to 180)
+    const gamma = event.gamma; // left-right tilt (-90 to 90)
 
-    if (gamma === null) return;
+    if (beta === null || gamma === null) return;
 
-    if (gamma < -15) {
+    // Detect screen orientation
+    // 0 = Portrait, 90 = Landscape Left, -90/270 = Landscape Right
+    const orientation = (screen.orientation && screen.orientation.angle) !== undefined
+      ? screen.orientation.angle
+      : (window.orientation as number) || 0;
+
+    let tilt = 0;
+
+    if (orientation === 90) {
+      // Landscape Left: Steering wheel feel comes from beta (tilting top/bottom edges)
+      tilt = beta;
+    } else if (orientation === -90 || orientation === 270) {
+      // Landscape Right: Inverse of beta
+      tilt = -beta;
+    } else {
+      // Portrait: Use gamma
+      tilt = gamma;
+    }
+
+    // Steering thresholds
+    if (tilt < -15) {
       this.sendSteer('LEFT');
-    } else if (gamma > 15) {
+    } else if (tilt > 15) {
       this.sendSteer('RIGHT');
     } else {
       this.sendSteer('CENTER');
